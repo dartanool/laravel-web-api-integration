@@ -22,7 +22,7 @@
 2. Создать файл .env
     ```bash
     cp .env.example .env
-3. Настроить переменные окружения (доступы к БД и ключ API):
+3. Настроить переменные окружения:
     ```bash
     DB_DATABASE=web_integration
     DB_USERNAME=web_user
@@ -36,6 +36,17 @@
     ```bash
    docker exec -it php-fpm bash 
    php artisan migrate
+
+---
+
+## Доступы для БД
+
+https://kenny.beget.com/phpMyAdmin
+- Host: sdartar5.beget.tech
+- Port: 3306
+- Database: sdartar5_s
+- Username: sdartar5_s
+- Password: 
 
 ---
 
