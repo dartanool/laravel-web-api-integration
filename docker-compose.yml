@@ -1,0 +1,59 @@
+services:
+  web:
+    image: nginx
+    ports:
+      - 8081:80
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - .:/var/www/html
+    restart: always
+    depends_on:
+      - php-fpm
+      - mysql
+
+  php-fpm:
+    build: ./docker/php/
+    depends_on:
+      - redis
+    volumes:
+      - .:/var/www/html
+    #      - ./docker/php/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-xdebug.ini
+    ports:
+      - "8000:8000"
+    environment:
+      - OCTANE_SERVER=swoole
+      - OCTANE_HOST=0.0.0.0
+      - OCTANE_PORT=8000
+
+  mysql:
+    image: mysql:8.0
+    container_name: laravel_mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+
+  rabbitmq:
+    image: rabbitmq:3.10-management
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    restart: always
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - ./data/redis:/var/lib/redis:rw
