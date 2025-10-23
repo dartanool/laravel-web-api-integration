@@ -58,6 +58,22 @@ https://kenny.beget.com/phpMyAdmin
 
 ---
 
+## Команды Artisan
+1. Выгрузка заказов
+    ```bash
+    php artisan fetch:orders {dateFrom} {dateTo}
+2. Выгрузка продаж
+    ```bash
+    php artisan fetch:sales {dateFrom} {dateTo}
+3. Выгрузка остатков на складе
+    ```bash
+    php artisan fetch:stocks {dateFrom}
+4. Выгрузка доходов
+    ```bash
+    php artisan fetch:incomes {dateFrom} {dateTo}
+
+---
+
 # Структура проекта 
 app/
 ├── Console/
