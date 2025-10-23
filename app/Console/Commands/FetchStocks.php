@@ -3,7 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Stock;
-use App\Services\WbApiService;
+use App\Services\WebApiService;
+use Exception;
 use Illuminate\Console\Command;
 
 class FetchStocks extends Command
@@ -25,10 +26,11 @@ class FetchStocks extends Command
     /**
      * Execute the console command.
      */
-    protected WbApiService $wbApiService;
-    public function __construct(){
+    protected WebApiService $wbApiService;
+    public function __construct(WebApiService $wbApiService)
+    {
         parent::__construct();
-        $this->wbApiService = new WbApiService();
+        $this->wbApiService = $wbApiService;
     }
     public function handle()
     {
@@ -42,7 +44,25 @@ class FetchStocks extends Command
         $page = 1;
 
         do {
-            $response = $this->wbApiService->getStocks($dateFrom, $page);
+            $attempt = 0;
+            $maxAttempts = 3;
+            $response = null;
+
+            while ($attempt < $maxAttempts) {
+                try {
+                    $response = $this->wbApiService->getStocks($dateFrom, $page);
+
+                    if (!empty($response['data'])) {
+                        break; // Успешно — выходим из retry
+                    }
+
+                    throw new Exception("Пустой ответ от API");
+                } catch (Exception $e) {
+                    $attempt++;
+                    $this->warn("Ошибка при загрузке страницы {$page} (попытка {$attempt}/{$maxAttempts}): {$e->getMessage()}");
+                    sleep(2); // 🕐 задержка между попытками
+                }
+            }
 
             if (empty($response['data'])) {
                 $this->info("Нет данных на странице {$page}");

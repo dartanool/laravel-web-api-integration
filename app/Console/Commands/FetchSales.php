@@ -3,7 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Sale;
-use App\Services\WbApiService;
+use App\Services\WebApiService;
+use Exception;
 use Illuminate\Console\Command;
 
 class FetchSales extends Command
@@ -21,8 +22,8 @@ class FetchSales extends Command
      * @var string
      */
     protected $description = 'Fetch sales from WB API';
-    protected WbApiService $wbApiService;
-    public function __construct(WbApiService $wbApiService)
+    protected WebApiService $wbApiService;
+    public function __construct(WebApiService $wbApiService)
     {
         parent::__construct();
         $this->wbApiService = $wbApiService;
@@ -38,7 +39,25 @@ class FetchSales extends Command
 
         $page = 1;
         do {
-            $response = $this->wbApiService->getSales($dateFrom, $dateTo);
+            $attempt = 0;
+            $maxAttempts = 3;
+            $response = null;
+
+            while ($attempt < $maxAttempts) {
+                try {
+                    $response = $this->wbApiService->getSales($dateFrom, $dateTo, $page);
+
+                    if (!empty($response['data'])) {
+                        break; // Успешно — выходим из retry
+                    }
+
+                    throw new Exception("Пустой ответ от API");
+                } catch (Exception $e) {
+                    $attempt++;
+                    $this->warn("Ошибка при загрузке страницы {$page} (попытка {$attempt}/{$maxAttempts}): {$e->getMessage()}");
+                    sleep(2); // 🕐 задержка между попытками
+                }
+            }
 
             if(empty($response['data'])) {
                 $this->info("Нет данных на странице {$page}");

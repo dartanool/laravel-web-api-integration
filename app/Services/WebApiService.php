@@ -4,10 +4,10 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 
-class WbApiService
+class WebApiService
 {
-    protected $baseUrl;
-    protected $apiKey;
+    protected string $baseUrl;
+    protected string $apiKey;
 
     public function __construct()
     {
@@ -15,14 +15,8 @@ class WbApiService
         $this->apiKey = env('API_KEY');
     }
 
-    protected function get($endpoint, $params = [])
-    {
-        $params['key'] = $this->apiKey;
-        $response = Http::get($this->baseUrl . $endpoint, $params);
-        return $response->json();
-    }
 
-    public function getOrders($dateFrom, $dateTo, $page = 1, $limit = 500)
+    public function getOrders(string $dateFrom, string $dateTo, int $page = 1, int $limit = 500)
     {
         return $this->get('/orders', [
             'dateFrom' => $dateFrom,
@@ -32,7 +26,7 @@ class WbApiService
         ]);
     }
 
-    public function getSales($dateFrom, $dateTo, $page = 1, $limit = 500)
+    public function getSales(string $dateFrom, string $dateTo, int $page = 1, int $limit = 500)
     {
         return $this->get('/sales', [
             'dateFrom' => $dateFrom,
@@ -42,7 +36,7 @@ class WbApiService
         ]);
     }
 
-    public function getStocks($date, $page = 1, $limit = 500)
+    public function getStocks(string $date, int $page = 1, int $limit = 500)
     {
         return $this->get('/stocks', [
             'dateFrom' => $date,
@@ -51,7 +45,7 @@ class WbApiService
         ]);
     }
 
-    public function getIncomes($dateFrom, $dateTo, $page = 1, $limit = 500)
+    public function getIncomes(string $dateFrom, string $dateTo, int $page = 1, int $limit = 500)
     {
         return $this->get('/incomes', [
             'dateFrom' => $dateFrom,
@@ -59,5 +53,12 @@ class WbApiService
             'page' => $page,
             'limit' => $limit,
         ]);
+    }
+
+    protected function get(string $endpoint, array $params = [])
+    {
+        $params['key'] = $this->apiKey;
+        $response = Http::get($this->baseUrl . $endpoint, $params);
+        return $response->json();
     }
 }
