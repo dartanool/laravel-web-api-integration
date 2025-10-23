@@ -9,18 +9,7 @@ use Illuminate\Console\Command;
 
 class FetchSales extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature =  'fetch:sales {dateFrom} {dateTo}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Fetch sales from WB API';
     protected WebApiService $wbApiService;
     public function __construct(WebApiService $wbApiService)
@@ -30,68 +19,88 @@ class FetchSales extends Command
     }
 
     /**
-     * Execute the console command.
+     * Выполнение команды.
      */
-    public function handle()
+    public function handle() : void
     {
         $dateFrom = $this->argument('dateFrom');
         $dateTo = $this->argument('dateTo');
-
         $page = 1;
+
         do {
-            $attempt = 0;
-            $maxAttempts = 3;
-            $response = null;
-
-            while ($attempt < $maxAttempts) {
-                try {
-                    $response = $this->wbApiService->getSales($dateFrom, $dateTo, $page);
-
-                    if (!empty($response['data'])) {
-                        break; // Успешно — выходим из retry
-                    }
-
-                    throw new Exception("Пустой ответ от API");
-                } catch (Exception $e) {
-                    $attempt++;
-                    $this->warn("Ошибка при загрузке страницы {$page} (попытка {$attempt}/{$maxAttempts}): {$e->getMessage()}");
-                    sleep(2); // 🕐 задержка между попытками
-                }
-            }
+            $response = retry(3, fn() =>
+            $this->wbApiService->getSales($dateFrom, $dateTo, $page),
+                1000
+            );
 
             if(empty($response['data'])) {
                 $this->info("Нет данных на странице {$page}");
                 break;
             }
 
+            $salesToInsert = [];
             foreach ($response['data'] as $sale) {
-                Sale::updateOrCreate(
-                    ['sale_id' => $sale['sale_id']],
+                $salesToInsert[] = [
+                    'sale_id' => $sale['sale_id'],
+                    'supplier_article' => $sale['supplier_article'] ?? null,
+                    'tech_size' => $sale['tech_size'] ?? null,
+                    'barcode' => $sale['barcode'] ?? null,
+                    'total_price' => $sale['total_price'] ?? 0,
+                    'discount_percent' => $sale['discount_percent'] ?? 0,
+                    'is_supply' => $sale['is_supply'] ?? false,
+                    'is_realization' => $sale['is_realization'] ?? false,
+                    'promo_code_discount' => $sale['promo_code_discount'] ?? null,
+                    'warehouse_name' => $sale['warehouse_name'] ?? null,
+                    'country_name' => $sale['country_name'] ?? null,
+                    'oblast_okrug_name' => $sale['oblast_okrug_name'] ?? null,
+                    'region_name' => $sale['region_name'] ?? null,
+                    'income_id' => $sale['income_id'] ?? null,
+                    'odid' => $sale['odid'] ?? null,
+                    'spp' => $sale['spp'] ?? null,
+                    'for_pay' => $sale['for_pay'] ?? null,
+                    'finished_price' => $sale['finished_price'] ?? null,
+                    'price_with_disc' => $sale['price_with_disc'] ?? null,
+                    'nm_id' => $sale['nm_id'] ?? null,
+                    'subject' => $sale['subject'] ?? null,
+                    'category' => $sale['category'] ?? null,
+                    'brand' => $sale['brand'] ?? null,
+                    'is_storno' => $sale['is_storno'] ?? null,
+                    'date' => $sale['date'] ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            if (!empty($salesToInsert)) {
+                \App\Models\Sale::upsert(
+                    $salesToInsert,
+                    ['sale_id'],
                     [
-                        'supplier_article' => $sale['supplier_article'] ?? null,
-                        'tech_size' => $sale['tech_size'] ?? null,
-                        'barcode' => $sale['barcode'] ?? null,
-                        'total_price' => $sale['total_price'] ?? 0,
-                        'discount_percent' => $sale['discount_percent'] ?? 0,
-                        'is_supply' => $sale['is_supply'] ?? false,
-                        'is_realization' => $sale['is_realization'] ?? false,
-                        'promo_code_discount' => $sale['promo_code_discount'] ?? null,
-                        'warehouse_name' => $sale['warehouse_name'] ?? null,
-                        'country_name' => $sale['country_name'] ?? null,
-                        'oblast_okrug_name' => $sale['oblast_okrug_name'] ?? null,
-                        'region_name' => $sale['region_name'] ?? null,
-                        'income_id' => $sale['income_id'] ?? null,
-                        'odid' => $sale['odid'] ?? null,
-                        'spp' => $sale['spp'] ?? null,
-                        'for_pay' => $sale['for_pay'] ?? null,
-                        'finished_price' => $sale['finished_price'] ?? null,
-                        'price_with_disc' => $sale['price_with_disc'] ?? null,
-                        'nm_id' => $sale['nm_id'] ?? null,
-                        'subject' => $sale['subject'] ?? null,
-                        'category' => $sale['category'] ?? null,
-                        'brand' => $sale['brand'] ?? null,
-                        'is_storno' => $sale['is_storno'] ?? null,
-                        'date' => $sale['date'] ?? null,
+                        'supplier_article',
+                        'tech_size',
+                        'barcode',
+                        'total_price',
+                        'discount_percent',
+                        'is_supply',
+                        'is_realization',
+                        'promo_code_discount',
+                        'warehouse_name',
+                        'country_name',
+                        'oblast_okrug_name',
+                        'region_name',
+                        'income_id',
+                        'odid',
+                        'spp',
+                        'for_pay',
+                        'finished_price',
+                        'price_with_disc',
+                        'nm_id',
+                        'subject',
+                        'category',
+                        'brand',
+                        'is_storno',
+                        'date',
+                        'updated_at',
                     ]
                 );
             }

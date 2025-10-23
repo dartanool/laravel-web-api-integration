@@ -20,64 +20,67 @@ class FetchOrders extends Command
         $this->wbApiService = $wbApiService;
     }
 
-    public function handle()
+    public function handle() : void
     {
         $dateFrom = $this->argument('dateFrom');
         $dateTo = $this->argument('dateTo');
-
         $page = 1;
 
         do {
-            $attempt = 0;
-            $maxAttempts = 3;
             $response = null;
+            $response = retry(3, fn() => $this->wbApiService->getOrders($dateFrom, $dateTo, $page),
+                1000
+            );
 
-            while ($attempt < $maxAttempts) {
-                try {
-                    $response = $this->wbApiService->getOrders($dateFrom, $dateTo, $page);
-
-                    if (!empty($response['data'])) {
-                        break; // Успешно — выходим из retry
-                    }
-
-                    throw new Exception("Пустой ответ от API");
-                } catch (Exception $e) {
-                    $attempt++;
-                    $this->warn("Ошибка при загрузке страницы {$page} (попытка {$attempt}/{$maxAttempts}): {$e->getMessage()}");
-                    sleep(2); // 🕐 задержка между попытками
-                }
-            }
-
-            if(empty($response['data'])) {
+            if (empty($response['data'])) {
                 $this->info("Нет данных на странице {$page}");
                 break;
             }
 
             foreach ($response['data'] as $order) {
-                Order::updateOrCreate(
+                $ordersToInsert[] = [
+                    'odid' => $order['odid'],
+                    'nm_id' => $order['nm_id'],
+                    'supplier_article' => $order['supplier_article'] ?? null,
+                    'tech_size' => $order['tech_size'] ?? null,
+                    'barcode' => $order['barcode'] ?? null,
+                    'total_price' => $order['total_price'] ?? 0,
+                    'discount_percent' => $order['discount_percent'] ?? 0,
+                    'warehouse_name' => $order['warehouse_name'] ?? null,
+                    'oblast' => $order['oblast'] ?? null,
+                    'subject' => $order['subject'] ?? null,
+                    'category' => $order['category'] ?? null,
+                    'brand' => $order['brand'] ?? null,
+                    'is_cancel' => $order['is_cancel'] ?? false,
+                    'cancel_dt' => $order['cancel_dt'] ?? null,
+                    'date' => $order['date'] ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            if (!empty($ordersToInsert)) {
+                Order::upsert(
+                    $ordersToInsert,
+                    ['odid', 'nm_id'],
                     [
-                        'odid' => $order['odid'],
-                        'nm_id' => $order['nm_id']
-                    ],
-                    [
-                        'supplier_article' => $order['supplier_article'] ?? null,
-                        'tech_size' => $order['tech_size'] ?? null,
-                        'barcode' => $order['barcode'] ?? null,
-                        'total_price' => $order['total_price'] ?? 0,
-                        'discount_percent' => $order['discount_percent'] ?? 0,
-                        'warehouse_name' => $order['warehouse_name'] ?? null,
-                        'oblast' => $order['oblast'] ?? null,
-                        'subject' => $order['subject'] ?? null,
-                        'category' => $order['category'] ?? null,
-                        'brand' => $order['brand'] ?? null,
-                        'is_cancel' => $order['is_cancel'] ?? false,
-                        'cancel_dt' => $order['cancel_dt'] ?? null,
-                        'date' => $order['date'],
+                        'supplier_article',
+                        'tech_size',
+                        'barcode',
+                        'total_price',
+                        'discount_percent',
+                        'warehouse_name',
+                        'oblast',
+                        'subject',
+                        'category',
+                        'brand',
+                        'is_cancel',
+                        'cancel_dt',
+                        'date',
+                        'updated_at',
                     ]
                 );
             }
-
-
             $this->info("Страница {$page} обработана");
 
             $page++;
