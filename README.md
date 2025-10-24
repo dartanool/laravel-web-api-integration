@@ -24,9 +24,11 @@
     cp .env.example .env
 3. Настроить переменные окружения:
     ```bash
-    DB_DATABASE=web_integration
-    DB_USERNAME=web_user
-    DB_PASSWORD=web_password
+    DB_HOST=sdartar5.beget.tech
+    DB_PORT=3306
+    DB_DATABASE=sdartar5_s
+    DB_USERNAME=sdartar5_s
+    DB_PASSWORD=wb_pasS5
     API_KEY=секретный_ключ
     BASE_URL=host
 4. Поднять контейнеры:
