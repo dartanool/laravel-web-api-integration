@@ -19,7 +19,7 @@ class FetchIncomes extends Command
         $this->wbApiService = $wbApiService;
     }
 
-    public function handle() : void
+    public function handle(): void
     {
         $dateFrom = $this->argument('dateFrom');
         $dateTo = $this->argument('dateTo');
@@ -28,8 +28,7 @@ class FetchIncomes extends Command
         do {
             $response = null;
 
-            $response = retry(3, fn() =>
-            $this->wbApiService->getIncomes($dateFrom, $dateTo, $page),
+            $response = retry(3, fn() => $this->wbApiService->getIncomes($dateFrom, $dateTo, $page),
                 1000
             );
 

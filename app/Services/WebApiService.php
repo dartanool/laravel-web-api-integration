@@ -25,7 +25,7 @@ class WebApiService
      * @return array Данные API в виде массива
      */
 
-    public function getOrders(string $dateFrom, string $dateTo, int $page = 1, int $limit = 500) : array
+    public function getOrders(string $dateFrom, string $dateTo, int $page = 1, int $limit = 500): array
     {
         return $this->get('/orders', [
             'dateFrom' => $dateFrom,
@@ -44,7 +44,7 @@ class WebApiService
      * @param int $limit
      * @return array
      */
-    public function getSales(string $dateFrom, string $dateTo, int $page = 1, int $limit = 500) : array
+    public function getSales(string $dateFrom, string $dateTo, int $page = 1, int $limit = 500): array
     {
         return $this->get('/sales', [
             'dateFrom' => $dateFrom,
@@ -62,7 +62,7 @@ class WebApiService
      * @param int $limit
      * @return array
      */
-    public function getStocks(string $date, int $page = 1, int $limit = 500) : array
+    public function getStocks(string $date, int $page = 1, int $limit = 500): array
     {
         return $this->get('/stocks', [
             'dateFrom' => $date,
@@ -80,7 +80,7 @@ class WebApiService
      * @param int $limit
      * @return array
      */
-    public function getIncomes(string $dateFrom, string $dateTo, int $page = 1, int $limit = 500) : array
+    public function getIncomes(string $dateFrom, string $dateTo, int $page = 1, int $limit = 500): array
     {
         return $this->get('/incomes', [
             'dateFrom' => $dateFrom,

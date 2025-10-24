@@ -20,7 +20,7 @@ class FetchOrders extends Command
         $this->wbApiService = $wbApiService;
     }
 
-    public function handle() : void
+    public function handle(): void
     {
         $dateFrom = $this->argument('dateFrom');
         $dateTo = $this->argument('dateTo');

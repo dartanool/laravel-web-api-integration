@@ -41,24 +41,25 @@
 
 ## Доступы для БД
 
-https://kenny.beget.com/phpMyAdmin
 - Host: sdartar5.beget.tech
 - Port: 3306
 - Database: sdartar5_s
 - Username: sdartar5_s
-- Password: 
+- Password: wb_pasS5
 
 ---
 
 ## Структура базы данны
- - orders
- - sales
- - incomes
- - stocks
+
+- orders
+- sales
+- incomes
+- stocks
 
 ---
 
 ## Команды Artisan
+
 1. Выгрузка заказов
     ```bash
     php artisan fetch:orders {dateFrom} {dateTo}
@@ -74,21 +75,22 @@ https://kenny.beget.com/phpMyAdmin
 
 ---
 
-# Структура проекта 
+# Структура проекта
+
 app/
 ├── Console/
-│   └── Commands/
-│       ├── FetchOrders.php
-│       ├── FetchSales.php
-│       ├── FetchStocks.php
-│       └── FetchIncomes.php
+│ └── Commands/
+│ ├── FetchOrders.php
+│ ├── FetchSales.php
+│ ├── FetchStocks.php
+│ └── FetchIncomes.php
 ├── Models/
-│   ├── Order.php
-│   ├── Sale.php
-│   ├── Stock.php
-│   └── Income.php
+│ ├── Order.php
+│ ├── Sale.php
+│ ├── Stock.php
+│ └── Income.php
 ├── Services/
-│   └── WbApiService.php
+│ └── WbApiService.php
 database/
 ├── migrations/
 └── seeders/

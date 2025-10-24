@@ -9,9 +9,10 @@ use Illuminate\Console\Command;
 
 class FetchSales extends Command
 {
-    protected $signature =  'fetch:sales {dateFrom} {dateTo}';
+    protected $signature = 'fetch:sales {dateFrom} {dateTo}';
     protected $description = 'Fetch sales from WB API';
     protected WebApiService $wbApiService;
+
     public function __construct(WebApiService $wbApiService)
     {
         parent::__construct();
@@ -21,19 +22,18 @@ class FetchSales extends Command
     /**
      * Выполнение команды.
      */
-    public function handle() : void
+    public function handle(): void
     {
         $dateFrom = $this->argument('dateFrom');
         $dateTo = $this->argument('dateTo');
         $page = 1;
 
         do {
-            $response = retry(3, fn() =>
-            $this->wbApiService->getSales($dateFrom, $dateTo, $page),
+            $response = retry(3, fn() => $this->wbApiService->getSales($dateFrom, $dateTo, $page),
                 1000
             );
 
-            if(empty($response['data'])) {
+            if (empty($response['data'])) {
                 $this->info("Нет данных на странице {$page}");
                 break;
             }
@@ -107,7 +107,7 @@ class FetchSales extends Command
 
             $this->info("Страница {$page} обработана");
             $page++;
-        }  while ($page <= ($response['last_page'] ?? 1));
+        } while ($page <= ($response['last_page'] ?? 1));
 
         $this->info("Выгрузка продаж завершена.");
     }

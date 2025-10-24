@@ -19,7 +19,7 @@ class FetchStocks extends Command
         $this->wbApiService = $wbApiService;
     }
 
-    public function handle() : void
+    public function handle(): void
     {
         $dateFrom = $this->argument('dateFrom');
         $page = 1;
