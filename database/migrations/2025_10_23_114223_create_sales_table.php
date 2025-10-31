@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
-            $table->string('sale_id')->unique();
+            $table->string('sale_id');
             $table->string('supplier_article')->nullable();
             $table->string('tech_size')->nullable();
             $table->string('barcode')->nullable();
@@ -40,7 +40,6 @@ return new class extends Migration
             $table->date('date')->nullable();
             $table->timestamps();
         });
-
     }
 
     /**

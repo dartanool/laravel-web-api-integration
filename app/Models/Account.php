@@ -14,6 +14,6 @@ class Account extends Model
     }
 
     public function tokens(){
-        return $this->hasMany(Token::class);
+        return $this->hasMany(ApiToken::class);
     }
 }

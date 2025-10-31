@@ -10,6 +10,6 @@ class ApiService extends Model
     protected $table = 'api_services';
     protected $fillable = ['name', 'base_url'];
     public function tokens(){
-        return $this->hasMany(Token::class);
+        return $this->hasMany(ApiToken::class);
     }
 }

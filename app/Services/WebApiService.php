@@ -123,4 +123,13 @@ class WebApiService
             return $response->json();
         }, 5 * 1000);
     }
+    /**
+     * Задаёт токен для API.
+     *
+     * @param string $apiKey
+     */
+    public function setApiKey(string $apiKey): void
+    {
+        $this->apiKey = $apiKey;
+    }
 }

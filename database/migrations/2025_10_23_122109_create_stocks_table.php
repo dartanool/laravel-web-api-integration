@@ -33,8 +33,6 @@ return new class extends Migration
             $table->date('date')->nullable();
             $table->date('last_change_date')->nullable();
             $table->timestamps();
-
-            $table->unique(['supplier_article','tech_size','nm_id','warehouse_name','date'], 'stocks_unique');
         });
     }
 
