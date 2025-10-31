@@ -31,7 +31,7 @@ class AddAccount extends Command
         $name = $this->argument('name');
 
         if (!Company::find($companyId)) {
-            $this->info("Компания с ID {$companyId} не найдена!");
+            $this->error("Компания с ID {$companyId} не найдена!");
             return 0;
         }
 

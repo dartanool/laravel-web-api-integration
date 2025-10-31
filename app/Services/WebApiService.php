@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class WebApiService
 {
@@ -100,7 +101,26 @@ class WebApiService
     protected function get(string $endpoint, array $params = [])
     {
         $params['key'] = $this->apiKey;
-        $response = Http::get($this->baseUrl . $endpoint, $params);
-        return $response->json();
+        $url = $this->baseUrl . $endpoint;
+
+        return retry(5, function () use ($url, $params) {
+            $response = Http::get($url, $params);
+
+            if ($response->status() === 429) {
+                $retryAfter = $response->header('Retry-After', 10);
+
+                Log::warning("Too many requests. Ждём {$retryAfter} секунд");
+
+                sleep($retryAfter);
+                throw new \Exception('Too Many Requests');
+            }
+
+            if (!$response->successful()) {
+                throw new \Exception("Ошибка: {$response->status()}");
+            }
+
+            Log::info(" Успешный запрос: {$url}");
+            return $response->json();
+        }, 5 * 1000);
     }
 }

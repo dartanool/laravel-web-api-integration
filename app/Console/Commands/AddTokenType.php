@@ -29,7 +29,7 @@ class AddTokenType extends Command
         $tokenType= $this->argument('tokenType');
 
         if (TokenType::find($tokenType)) {
-            $this->info("Тип токена '{$tokenType}' уже существует.");
+            $this->error("Тип токена '{$tokenType}' уже существует.");
             return 0;
         }
 
