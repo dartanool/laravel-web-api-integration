@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ApiService;
 use Illuminate\Console\Command;
 
 class AddApiService extends Command
@@ -26,6 +27,12 @@ class AddApiService extends Command
     public function handle()
     {
         $name = $this->argument('name');
-        $baseUrl = $this->argument('baseUrl')
+        $baseUrl = $this->argument('baseUrl');
+
+        $apiService = ApiService::create([
+            'name' => $name,
+            'base_url' => $baseUrl,
+        ]);
+        $this->info("API-сервис '{$apiService->name}' успешно добавлен (ID: {$apiService->id})");
     }
 }
