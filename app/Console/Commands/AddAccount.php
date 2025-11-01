@@ -9,21 +9,23 @@ use Illuminate\Console\Command;
 class AddAccount extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Имя и сигнатура Artisan-команды.
      *
      * @var string
      */
     protected $signature = 'add:account {companyId} {name}';
 
     /**
-     * The console command description.
+     * Описание команды.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Добавляет новый аккаунт к существующей компании';
 
     /**
-     * Execute the console command.
+     * Выполнение консольной команды.
+     *
+     * @return int
      */
     public function handle()
     {

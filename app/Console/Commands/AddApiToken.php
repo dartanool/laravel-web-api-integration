@@ -11,21 +11,25 @@ use Illuminate\Console\Command;
 class AddApiToken extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Имя и сигнатура Artisan-команды.
      *
      * @var string
      */
     protected $signature = 'add:api-token {accountId} {apiServiceId} {tokenTypeId} {tokenValue}';
 
     /**
-     * The console command description.
+     * Описание команды.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Добавляет новый API-токен для конкретного аккаунта и сервиса.';
 
     /**
-     * Execute the console command.
+     * Выполнение консольной команды.
+     *
+     * * @return int Код завершения:
+     *             0 — успешное выполнение;
+     *             1 — ошибка (не найден один из связанных объектов).
      */
     public function handle()
     {

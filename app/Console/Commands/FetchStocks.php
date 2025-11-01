@@ -7,11 +7,22 @@ use App\Models\Stock;
 use App\Services\WebApiService;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class FetchStocks extends Command
 {
+    /**
+     * Имя и сигнатура Artisan-команды.
+     *
+     * @var string
+     */
     protected $signature = 'fetch:stocks {dateFrom}';
-    protected $description = 'Command description';
+    /**
+     * Описание команды.
+     *
+     * @var string
+     */
+    protected $description = 'Загружает остатки товаров со складов';
     protected WebApiService $wbApiService;
 
     public function __construct(WebApiService $wbApiService)
@@ -19,7 +30,11 @@ class FetchStocks extends Command
         parent::__construct();
         $this->wbApiService = $wbApiService;
     }
-
+    /**
+     * Выполнение команды.
+     *
+     * @return void
+     */
     public function handle(): void
     {
         $dateFrom = $this->argument('dateFrom');
@@ -27,6 +42,18 @@ class FetchStocks extends Command
             $this->error("Дата не может быть больше сегодняшней");
             return;
         }
+
+        // определяет последнюю дату, которая есть в таблице incomes
+        $lastDate = DB::table('incomes')->max('date');
+
+        if ($lastDate) {
+            $dateFrom = max($dateFrom, $lastDate); // чтобы не уйти назад по времени
+            $this->info(" Загружаем только свежие данные, начиная с {$dateFrom}");
+        } else {
+            $this->info(" В таблице пока нет данных — загружаем всё с {$dateFrom}");
+        }
+
+
 
         $accounts = Account::with('tokens')->get();
         foreach ($accounts as $account) {

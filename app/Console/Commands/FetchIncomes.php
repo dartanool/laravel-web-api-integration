@@ -10,8 +10,18 @@ use Illuminate\Console\Command;
 
 class FetchIncomes extends Command
 {
+    /**
+     * Имя и сигнатура Artisan-команды.
+     *
+     * @var string
+     */
     protected $signature = 'fetch:incomes {dateFrom} {dateTo}';
-    protected $description = 'Command description';
+    /**
+     * Описание команды.
+     *
+     * @var string
+     */
+    protected $description = 'Загружает доходы за указанный период';
     protected WebApiService $wbApiService;
 
     public function __construct(WebApiService $wbApiService)
@@ -19,13 +29,27 @@ class FetchIncomes extends Command
         parent::__construct();
         $this->wbApiService = $wbApiService;
     }
-
+    /**
+     * Выполнение команды.
+     *
+     * @return void
+     */
     public function handle(): void
     {
         $dateFrom = $this->argument('dateFrom');
         $dateTo = $this->argument('dateTo');
 
         $accounts = Account::with('tokens')->get();
+
+        $lastDate = DB::table('incomes')->max('date');
+
+        if ($lastDate) {
+            // Берём только новые данные
+            $dateFrom = max($dateFrom, $lastDate); // чтобы не уйти назад по времени
+            $this->info("📅 Загружаем только свежие данные, начиная с {$dateFrom}");
+        } else {
+            $this->info("📅 В таблице пока нет данных — загружаем всё с {$dateFrom}");
+        }
 
         foreach ($accounts as $account) {
             $this->info("🔹 Обрабатываем аккаунт {$account->id} ({$account->name})");

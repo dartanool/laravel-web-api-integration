@@ -8,23 +8,24 @@ use Illuminate\Console\Command;
 class AddTokenType extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Имя и сигнатура Artisan-команды.
      *
      * @var string
      */
     protected $signature = 'add:token-type {tokenType}';
-
     /**
-     * The console command description.
+     * Описание команды.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Добавляет новый тип токена в систему';
 
     /**
-     * Execute the console command.
+     * Выполнение консольной команды.
+     *
+     * @return boolean
      */
-    public function handle()
+    public function handle() : bool
     {
         $tokenType= $this->argument('tokenType');
 

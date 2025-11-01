@@ -6,11 +6,22 @@ use Illuminate\Console\Command;
 use App\Services\WebApiService;
 use App\Models\Order;
 use App\Models\Account;
+use Illuminate\Support\Facades\DB;
 
 class FetchOrders extends Command
 {
+    /**
+     * Имя и сигнатура Artisan-команды.
+     *
+     * @var string
+     */
     protected $signature = 'fetch:orders {dateFrom} {dateTo}';
-    protected $description = 'Fetch orders from WB API';
+    /**
+     * Описание команды.
+     *
+     * @var string
+     */
+    protected $description = 'Загружает заказы за указанный период';
 
     protected WebApiService $wbApiService;
 
@@ -19,11 +30,25 @@ class FetchOrders extends Command
         parent::__construct();
         $this->wbApiService = $wbApiService;
     }
-
+    /**
+     * Выполнение команды.
+     *
+     * @return void
+     */
     public function handle(): void
     {
         $dateFrom = $this->argument('dateFrom');
         $dateTo = $this->argument('dateTo');
+
+        // определяет последнюю дату, которая есть в таблице incomes
+        $lastDate = DB::table('incomes')->max('date');
+
+        if ($lastDate) {
+            $dateFrom = max($dateFrom, $lastDate); // чтобы не уйти назад по времени
+            $this->info(" Загружаем только свежие данные, начиная с {$dateFrom}");
+        } else {
+            $this->info(" В таблице пока нет данных — загружаем всё с {$dateFrom}");
+        }
 
         $accounts = Account::with('tokens')->get();
         foreach ($accounts as $account) {

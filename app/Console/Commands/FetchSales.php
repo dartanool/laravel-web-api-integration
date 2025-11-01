@@ -7,11 +7,22 @@ use App\Models\Sale;
 use App\Services\WebApiService;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class FetchSales extends Command
 {
+    /**
+     * Имя и сигнатура Artisan-команды.
+     *
+     * @var string
+     */
     protected $signature = 'fetch:sales {dateFrom} {dateTo}';
-    protected $description = 'Fetch sales from WB API';
+    /**
+     * Описание команды.
+     *
+     * @var string
+     */
+    protected $description = 'Загружает продажи за указанный период';
     protected WebApiService $wbApiService;
 
     public function __construct(WebApiService $wbApiService)
@@ -19,11 +30,29 @@ class FetchSales extends Command
         parent::__construct();
         $this->wbApiService = $wbApiService;
     }
-
+    /**
+     * Выполнение команды.
+     *
+     * @return void
+     */
     public function handle(): void
     {
         $dateFrom = $this->argument('dateFrom');
         $dateTo = $this->argument('dateTo');
+
+
+
+        // определяет последнюю дату, которая есть в таблице incomes
+        $lastDate = DB::table('incomes')->max('date');
+
+        if ($lastDate) {
+            $dateFrom = max($dateFrom, $lastDate); // чтобы не уйти назад по времени
+            $this->info(" Загружаем только свежие данные, начиная с {$dateFrom}");
+        } else {
+            $this->info(" В таблице пока нет данных — загружаем всё с {$dateFrom}");
+        }
+
+
 
         $accounts = Account::with('tokens')->get();
         foreach ($accounts as $account) {

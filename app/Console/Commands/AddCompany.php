@@ -8,21 +8,21 @@ use Illuminate\Console\Command;
 class AddCompany extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Имя и сигнатура Artisan-команды.
      *
      * @var string
      */
     protected $signature = 'add:company {name}';
-
     /**
-     * The console command description.
+     * Описание команды.
      *
      * @var string
      */
-    protected $description = 'Command description';
-
+    protected $description = 'Создает новую компанию с указанным именем';
     /**
-     * Execute the console command.
+     * Выполнение консольной команды.
+     *
+     * @return void
      */
     public function handle()
     {

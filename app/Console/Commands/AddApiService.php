@@ -8,23 +8,25 @@ use Illuminate\Console\Command;
 class AddApiService extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Имя и сигнатура Artisan-команды.
      *
      * @var string
      */
     protected $signature = 'add:api-service {name} {baseUrl}';
 
     /**
-     * The console command description.
+     * Описание команды.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Добавляет новый api_service';
 
     /**
-     * Execute the console command.
+     * Выполнение консольной команды.
+     *
+     * @return void
      */
-    public function handle()
+    public function handle() : void
     {
         $name = $this->argument('name');
         $baseUrl = $this->argument('baseUrl');
