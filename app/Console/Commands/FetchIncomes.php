@@ -8,7 +8,7 @@ use App\Services\WebApiService;
 use Exception;
 use Illuminate\Console\Command;
 
-class FetchIncomes extends Command
+class FetchIncomes extends FetchCommand
 {
     /**
      * Имя и сигнатура Artisan-команды.
@@ -22,104 +22,34 @@ class FetchIncomes extends Command
      * @var string
      */
     protected $description = 'Загружает доходы за указанный период';
-    protected WebApiService $wbApiService;
+    protected string $modelClass = Income::class;
+    protected string $apiMethod = 'getIncomes';
+    protected array $uniqueKeys = ['account_id', 'income_id', 'nm_id', 'supplier_article', 'tech_size'];
 
-    public function __construct(WebApiService $wbApiService)
+    public function __construct(WebApiService $apiService)
     {
         parent::__construct();
-        $this->wbApiService = $wbApiService;
+        $this->apiService = $apiService;
     }
-    /**
-     * Выполнение команды.
-     *
-     * @return void
-     */
-    public function handle(): void
+
+    protected function prepareRow(array $item, int $accountId): array
     {
-        $dateFrom = $this->argument('dateFrom');
-        $dateTo = $this->argument('dateTo');
-
-        $accounts = Account::with('tokens')->get();
-
-        $lastDate = DB::table('incomes')->max('date');
-
-        if ($lastDate) {
-            // Берём только новые данные
-            $dateFrom = max($dateFrom, $lastDate); // чтобы не уйти назад по времени
-            $this->info("📅 Загружаем только свежие данные, начиная с {$dateFrom}");
-        } else {
-            $this->info("📅 В таблице пока нет данных — загружаем всё с {$dateFrom}");
-        }
-
-        foreach ($accounts as $account) {
-            $this->info("🔹 Обрабатываем аккаунт {$account->id} ({$account->name})");
-
-            $token = $account->tokens->first(); // используем первый токен
-            if (!$token) {
-                $this->warn(" Токен не найден для аккаунта {$account->id}");
-                continue;
-            }
-
-            $this->wbApiService->setApiKey($token->token_value); // если в сервисе есть метод setApiKey()
-
-
-            $page = 1;
-
-            do {
-                $response = null;
-
-                $response = retry(3, fn() => $this->wbApiService->getIncomes($dateFrom, $dateTo, $page),
-                    1000
-                );
-
-                if (empty($response['data'])) {
-                    $this->info("Нет данных на странице {$page}");
-                    break;
-                }
-                $incomesToInsert = [];
-
-                foreach ($response['data'] as $income) {
-                    $incomesToInsert[] = [
-                        'account_id' => $account->id, // 2️⃣ Сохраняем account_id
-                        'income_id' => $income['income_id'],
-                        'nm_id' => $income['nm_id'],
-                        'supplier_article' => $income['supplier_article'] ?? null,
-                        'tech_size' => $income['tech_size'] ?? null,
-                        'number' => $income['number'] ?? null,
-                        'date' => $income['date'] ?? null,
-                        'last_change_date' => $income['last_change_date'] ?? null,
-                        'barcode' => $income['barcode'] ?? null,
-                        'quantity' => $income['quantity'] ?? 0,
-                        'total_price' => $income['total_price'] ?? 0,
-                        'date_close' => $income['date_close'] ?? null,
-                        'warehouse_name' => $income['warehouse_name'] ?? null,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
-                }
-                if (!empty($incomesToInsert)) {
-                    Income::upsert(
-                        $incomesToInsert,
-                        ['account_id', 'income_id', 'nm_id', 'supplier_article', 'tech_size'],
-                        [
-                            'number',
-                            'date',
-                            'last_change_date',
-                            'barcode',
-                            'quantity',
-                            'total_price',
-                            'date_close',
-                            'warehouse_name',
-                            'updated_at',
-                        ]
-                    );
-                }
-                $this->info("Страница {$page} обработана");
-                $page++;
-            } while ($page <= ($response['meta']['last_page'] ?? 1));
-
-            $this->info(" Выгрузка доходов завершена для аккаунта {$account->id}");
-        }
-        $this->info(" Все аккаунты обработаны");
+        return [
+            'account_id' => $accountId,
+            'income_id' => $item['income_id'],
+            'nm_id' => $item['nm_id'],
+            'supplier_article' => $item['supplier_article'] ?? null,
+            'tech_size' => $item['tech_size'] ?? null,
+            'number' => $item['number'] ?? null,
+            'date' => $item['date'] ?? null,
+            'last_change_date' => $item['last_change_date'] ?? null,
+            'barcode' => $item['barcode'] ?? null,
+            'quantity' => $item['quantity'] ?? 0,
+            'total_price' => $item['total_price'] ?? 0,
+            'date_close' => $item['date_close'] ?? null,
+            'warehouse_name' => $item['warehouse_name'] ?? null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
     }
 }
