@@ -39,7 +39,7 @@ abstract class FetchCommand extends Command
     public function handle(): void
     {
         $dateFrom = $this->argument('dateFrom');
-        $dateTo = $this->argument('dateTo');
+        $dateTo = $this->hasArgument('dateTo') ? $this->argument('dateTo') : null;
 
         $accounts = Account::with('tokens')->get();
 
@@ -56,26 +56,24 @@ abstract class FetchCommand extends Command
 
             $model = $this->modelClass;
             $lastDate = $model::where('account_id', $account->id)->max('date');
-
             if ($lastDate) {
-                $dateFrom = max($dateFrom, $lastDate);
-                $this->info(" Загружаем только новые данные с {$dateFrom}");
+                if ($lastDate > $dateFrom) {
+                    $dateFrom = $lastDate;
+                }
             }
-
             $page = 1;
             $totalInserted = 0;
 
+            $this->info($this->apiMethod);
             do {
                 $this->line("   → Загружаем страницу {$page}...");
 
-                $response = retry(3, function () use ($dateFrom, $dateTo, $page) {
-                    try {
-                        return $this->apiService->{$this->apiMethod}($dateFrom, $dateTo, $page);
-                    } catch (Exception $e) {
-                        Log::error("Ошибка API: " . $e->getMessage());
-                        throw $e;
-                    }
-                }, 1000);
+
+                $response = retry(
+                    3,
+                    fn() => $this->callApi($dateFrom, $dateTo, $page),
+                    2000
+                );
 
                 if (empty($response['data'])) {
                     $this->warn(" Нет данных на странице {$page}");
@@ -99,6 +97,17 @@ abstract class FetchCommand extends Command
 
             $this->info("Выгрузка для аккаунта {$account->name} завершена. Всего добавлено: {$totalInserted}");
         }
+    }
+
+    protected function callApi(string $dateFrom, ?string $dateTo, int $page): array
+    {
+        // если это остатки (только одна дата)
+        if ($this->apiMethod === 'getStocks') {
+            return $this->apiService->getStocks($dateFrom);
+        }
+
+        // иначе передаем диапазон дат и страницу
+        return $this->apiService->{$this->apiMethod}($dateFrom, $dateTo, $page);
     }
 
     /**

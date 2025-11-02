@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class UpdateApiData extends Command
 {
@@ -25,20 +26,20 @@ class UpdateApiData extends Command
      */
     public function handle() : void
     {
-        $this->info("Запуск выгрузки всех данных: " . now());
+        Log::info("Запуск выгрузки всех данных: " . now());
 
         $this->call('fetch:orders', [
-            'dateFrom' => now()->subMonth()->format('Y-m-d'),
+            'dateFrom' => now()->subDay()->format('Y-m-d'),
             'dateTo' => now()->format('Y-m-d')
         ]);
 
         $this->call('fetch:sales', [
-            'dateFrom' => now()->subMonth()->format('Y-m-d'),
+            'dateFrom' => now()->subDay()->format('Y-m-d'),
             'dateTo' => now()->format('Y-m-d')
         ]);
 
         $this->call('fetch:incomes', [
-            'dateFrom' => now()->subMonth()->format('Y-m-d'),
+            'dateFrom' => now()->subDay()->format('Y-m-d'),
             'dateTo' => now()->format('Y-m-d')
         ]);
 
@@ -47,6 +48,6 @@ class UpdateApiData extends Command
             'dateFrom' => $today
         ]);
 
-        $this->info("Выгрузка всех данных завершена: " . now());
+        Log::info("Выгрузка всех данных завершена: " . now());
     }
 }

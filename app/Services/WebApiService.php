@@ -105,7 +105,6 @@ class WebApiService
 
         return retry(5, function () use ($url, $params) {
             $response = Http::get($url, $params);
-
             if ($response->status() === 429) {
                 $retryAfter = $response->header('Retry-After', 10);
 
@@ -119,7 +118,7 @@ class WebApiService
                 throw new \Exception("Ошибка: {$response->status()}");
             }
 
-            Log::info(" Успешный запрос: {$url}");
+            Log::info(" Успешный запрос: {$response->status()} {$url}");
             return $response->json();
         }, 5 * 1000);
     }
