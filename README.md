@@ -57,6 +57,12 @@
 - sales
 - incomes
 - stocks
+- companies
+- accounts
+- token_types
+- api_services
+- api_services_token_type
+- api_tokens
 
 ---
 
@@ -78,22 +84,21 @@
 ---
 
 # Структура проекта
-
-app/
-├── Console/
-│ └── Commands/
-│ ├── FetchOrders.php
-│ ├── FetchSales.php
-│ ├── FetchStocks.php
-│ └── FetchIncomes.php
-├── Models/
-│ ├── Order.php
-│ ├── Sale.php
-│ ├── Stock.php
-│ └── Income.php
-├── Services/
-│ └── WbApiService.php
-database/
-├── migrations/
-└── seeders/
+    app/
+    ├── Console/
+    │ └── Commands/
+    │ ├── FetchOrders.php
+    │ ├── FetchSales.php
+    │ ├── FetchStocks.php
+    │ └── FetchIncomes.php
+    ├── Models/
+    │ ├── Order.php
+    │ ├── Sale.php
+    │ ├── Stock.php
+    │ └── Income.php
+    ├── Services/
+    │ └── WbApiService.php
+    database/
+    ├── migrations/
+    └── seeders/
 

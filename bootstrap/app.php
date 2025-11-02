@@ -18,6 +18,6 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->call(\App\Console\Commands\UpdateApiData::class)->everyMinute();
-//        $schedule->call('update:api-data')->twiceDaily(10, 18);
+//        $schedule->call(\App\Console\Commands\UpdateApiData::class)->everyMinute();
+        $schedule->call('update:api-data')->twiceDaily(10, 18);
     })->create();

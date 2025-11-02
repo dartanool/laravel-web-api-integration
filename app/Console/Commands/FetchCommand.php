@@ -28,7 +28,7 @@ abstract class FetchCommand extends Command
     protected string $apiMethod;
 
     /**
-     * Обязательные поля для уникальности (upsert)
+     * Уникальные ключи для upsert
      * @var array
      */
     protected array $uniqueKeys = [];
@@ -98,20 +98,29 @@ abstract class FetchCommand extends Command
             $this->info("Выгрузка для аккаунта {$account->name} завершена. Всего добавлено: {$totalInserted}");
         }
     }
-
+    /**
+     * Вызывает соответствующий метод API
+     *
+     * @param string $dateFrom
+     * @param string|null $dateTo
+     * @param int $page
+     * @return array Ответ API
+     */
     protected function callApi(string $dateFrom, ?string $dateTo, int $page): array
     {
-        // если это остатки (только одна дата)
         if ($this->apiMethod === 'getStocks') {
             return $this->apiService->getStocks($dateFrom);
         }
 
-        // иначе передаем диапазон дат и страницу
         return $this->apiService->{$this->apiMethod}($dateFrom, $dateTo, $page);
     }
 
     /**
-     * Подготовка строки для upsert
+     * Преобразует один элемент ответа API в строку для вставки в БД
+     *
+     * @param array $item Элемент из API
+     * @param int $accountId ID аккаунта
+     * @return array
      */
     abstract protected function prepareRow(array $item, int $accountId): array;
 }
