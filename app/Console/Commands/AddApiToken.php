@@ -27,11 +27,11 @@ class AddApiToken extends Command
     /**
      * Выполнение консольной команды.
      *
-     * * @return int Код завершения:
+     * * @return bool Код завершения:
      *             0 — успешное выполнение;
      *             1 — ошибка (не найден один из связанных объектов).
      */
-    public function handle()
+    public function handle() : bool
     {
         $accountId = $this->argument('accountId');
         $apiServiceId = $this->argument('apiServiceId');

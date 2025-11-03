@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Account extends Model
 {
     protected $table = 'accounts';
-    protected $fillable = ['company_id','name'];
+    protected $fillable = ['company_id', 'name'];
 
-    public function company(){
+    public function company()
+    {
         return $this->belongsTo(Company::class);
     }
 
-    public function tokens(){
+    public function tokens()
+    {
         return $this->hasMany(ApiToken::class);
     }
 }

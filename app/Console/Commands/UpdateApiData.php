@@ -19,12 +19,13 @@ class UpdateApiData extends Command
      * @var string
      */
     protected $description = 'Выгрузка всех данных: orders, sales, incomes, stocks';
+
     /**
      * Выполнение команды.
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         Log::info("Запуск выгрузки всех данных: " . now());
 

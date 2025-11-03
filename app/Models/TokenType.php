@@ -10,7 +10,8 @@ class TokenType extends Model
     protected $table = 'token_types';
     protected $fillable = ['name', 'description'];
 
-    public function tokens(){
-        return $this->hasMany(Token::class);
+    public function tokens()
+    {
+        return $this->hasMany(ApiToken::class);
     }
 }

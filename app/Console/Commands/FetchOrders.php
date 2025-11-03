@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Services\WebApiService;
 use App\Models\Order;
 
@@ -24,6 +23,7 @@ class FetchOrders extends FetchCommand
     protected string $modelClass = Order::class;
     protected string $apiMethod = 'getOrders';
     protected array $uniqueKeys = ['account_id', 'odid', 'nm_id'];
+
     public function __construct(WebApiService $apiService)
     {
         parent::__construct();

@@ -19,12 +19,13 @@ class AddCompany extends Command
      * @var string
      */
     protected $description = 'Создает новую компанию с указанным именем';
+
     /**
      * Выполнение консольной команды.
      *
      * @return void
      */
-    public function handle()
+    public function handle() : void
     {
         $name = $this->argument('name');
 

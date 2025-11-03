@@ -4,8 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Account;
-use Illuminate\Support\Facades\Log;
-use Exception;
 
 abstract class FetchCommand extends Command
 {
@@ -98,6 +96,7 @@ abstract class FetchCommand extends Command
             $this->info("Выгрузка для аккаунта {$account->name} завершена. Всего добавлено: {$totalInserted}");
         }
     }
+
     /**
      * Вызывает соответствующий метод API
      *

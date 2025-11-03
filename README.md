@@ -70,7 +70,7 @@
 
 1. Выгрузка заказов
     ```bash
-    php artisan fetch:orders {dateFrom} {dateTo}
+    php artisan fetch:orders {dateFrom=YYYY-MM-DD} {dateTo=YYYY-MM-DD}
 2. Выгрузка продаж
     ```bash
     php artisan fetch:sales {dateFrom} {dateTo}
@@ -80,6 +80,14 @@
 4. Выгрузка доходов
     ```bash
     php artisan fetch:incomes {dateFrom} {dateTo}
+
+---
+
+## Автоматическое обновление
+
+Обновление данных настроено через Laravel Scheduler в 10:00 и в 18:00.
+    ```bash
+    php artisan schedule:run
 
 ---
 

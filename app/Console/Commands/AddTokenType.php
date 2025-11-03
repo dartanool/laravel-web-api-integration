@@ -25,16 +25,16 @@ class AddTokenType extends Command
      *
      * @return boolean
      */
-    public function handle() : bool
+    public function handle(): bool
     {
-        $tokenType= $this->argument('tokenType');
+        $tokenType = $this->argument('tokenType');
 
         if (TokenType::find($tokenType)) {
             $this->error("Тип токена '{$tokenType}' уже существует.");
             return 0;
         }
 
-        $tokenType= TokenType::create([
+        $tokenType = TokenType::create([
             'name' => $tokenType,
         ]);
 

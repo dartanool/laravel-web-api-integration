@@ -2,11 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Account;
 use App\Models\Income;
 use App\Services\WebApiService;
-use Exception;
-use Illuminate\Console\Command;
 
 class FetchIncomes extends FetchCommand
 {
